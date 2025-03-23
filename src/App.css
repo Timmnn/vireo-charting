@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+
+
+body {
+  margin: 0;
+}
+
+html {
+  font-size: 14px;
+}
+
+
+
+.chart {
+  display: grid;
+  grid-template-columns: 50px max-content;
+  grid-template-rows: max-content 50px;
+  grid-auto-columns: 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "y-scale ."
+    ". x-scale";
+  outline: 1px solid black;
+}
+
+.y-scale {
+  grid-area: y-scale;
+  outline: 1px solid black;
+}
+
+.x-scale {
+  grid-area: x-scale;
+  outline: 1px solid black;
+}
