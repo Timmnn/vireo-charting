@@ -5,7 +5,7 @@ export type CandleStickType = {
   high: number;
   low: number;
   close: number;
-  timestamp: number;
+  datetime: Date;
 };
 
 export class CandleStick extends Series<CandleStickType> {
@@ -69,8 +69,8 @@ export class CandleStick extends Series<CandleStickType> {
     const min = Math.min(...visible_data.map((d) => d.low));
     const max = Math.max(...visible_data.map((d) => d.high));
 
-    const time_min = Math.min(...visible_data.map((d) => d.timestamp));
-    const time_max = Math.max(...visible_data.map((d) => d.timestamp));
+    const time_min = Math.min(...visible_data.map((d) => d.datetime.getTime()));
+    const time_max = Math.max(...visible_data.map((d) => d.datetime.getTime()));
 
     return {
       min,

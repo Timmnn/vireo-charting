@@ -10,6 +10,36 @@ export type ScaleGroupOptions = {
   scale_size: number;
 };
 
+function renderXScale(data: any, scale_size, width) {
+  const x_scale_canvas = document.createElement("canvas");
+  x_scale_canvas.height = scale_size;
+  x_scale_canvas.width = width - scale_size;
+
+  const x_markers = 10;
+
+  for (let i = 0; i < x_markers; i++) {
+    const data_point = data[Math.floor((data.length * i) / x_markers)];
+
+    const x_pos = (i / x_markers) * width;
+
+    const ctx = x_scale_canvas.getContext("2d")!;
+    x_scale_canvas.classList.add("x-scale");
+
+    ctx.beginPath(); // Start a new path
+    ctx.moveTo(x_pos, 0);
+    ctx.lineTo(x_pos, 100);
+    ctx.stroke(); // Render the path
+
+    ctx.fillText(
+      new Date(data_point.datetime * 1000).toLocaleString(),
+      x_pos,
+      20,
+    );
+  }
+
+  return x_scale_canvas;
+}
+
 export class ScaleGroup {
   series: Series<any>[] = [];
   width: number;
@@ -109,6 +139,7 @@ export class ScaleGroup {
   }
 
   private renderTooltip() {
+    return;
     const toolTip = document.createElement("div");
     toolTip.innerHTML = "TOOLTIP";
 
@@ -123,12 +154,6 @@ export class ScaleGroup {
       .forEach((el) => el.remove());
 
     this.ctx = ctx;
-    const x_scale_canvas = document.createElement("canvas");
-    x_scale_canvas.height = this.scale_size;
-    x_scale_canvas.width = this.width - this.scale_size;
-
-    const x_ctx = x_scale_canvas.getContext("2d")!;
-    x_scale_canvas.classList.add("x-scale");
 
     console.log("DBG_B", this.scale_size);
 
@@ -139,7 +164,6 @@ export class ScaleGroup {
     const y_ctx = y_scale_canvas.getContext("2d")!;
     y_scale_canvas.classList.add("y-scale");
 
-    this.dom.appendChild(x_scale_canvas);
     this.dom.appendChild(y_scale_canvas);
     this.dom.classList.add("chart");
 
@@ -174,30 +198,14 @@ export class ScaleGroup {
         end: Math.max(...visible_data.map((val) => val.high)),
       },
     });
-
-    const x_markers = 10;
-
     const data = this.series[0].data.slice(
       this.dataOffset,
       this.dataOffset + this.visibleDataPoints,
     );
 
-    for (let i = 0; i < x_markers; i++) {
-      const data_point = data[Math.floor((data.length * i) / x_markers)];
+    const x_scale_canvas = renderXScale(data, this.scale_size, this.width);
 
-      const x_pos = (i / x_markers) * this.width;
-
-      x_ctx.beginPath(); // Start a new path
-      x_ctx.moveTo(x_pos, 0);
-      x_ctx.lineTo(x_pos, 100);
-      x_ctx.stroke(); // Render the path
-
-      x_ctx.fillText(
-        new Date(data_point.timestamp * 1000).toLocaleString(),
-        x_pos,
-        20,
-      );
-    }
+    this.dom.appendChild(x_scale_canvas);
 
     const y_markers = 10;
     const min_price = Math.min(...data.map((val) => val.low));
