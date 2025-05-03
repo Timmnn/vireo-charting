@@ -10,31 +10,34 @@ export type ScaleGroupOptions = {
   scale_size: number;
 };
 
-function renderXScale(data: any, scale_size: number, width: number) {
+function renderXScale(
+  data: any[],
+  scale_size: number,
+  width: number,
+  x: (index: number) => number,
+) {
   const x_scale_canvas = document.createElement("canvas");
 
   x_scale_canvas.height = scale_size;
   x_scale_canvas.width = width - scale_size;
 
-  const x_markers = 10;
+  const max_markers = Math.floor(width / 150);
 
-  console.log("DATA_x", data);
+  const x_markers = Math.min(data.length, max_markers);
 
   for (let i = 0; i < x_markers; i++) {
-    const data_point = data[Math.floor((data.length * i) / x_markers)];
+    let index = Math.floor((data.length * i) / x_markers);
 
-    const x_pos = (i / x_markers) * width;
+    const data_point = data[index];
+
+    const x_pos = x(index);
 
     const ctx = x_scale_canvas.getContext("2d")!;
     ctx.font = `500 10px Roboto, sans-serif`;
 
     x_scale_canvas.classList.add("x-scale");
 
-    ctx.beginPath(); // Start a new path
-    ctx.moveTo(x_pos, 0);
-    ctx.lineTo(x_pos, 100);
-    ctx.stroke(); // Render the path
-    ctx.font = `500 10px Roboto, sans-serif`;
+    ctx.textAlign = "center";
     ctx.fillText(new Date(data_point.datetime).toLocaleString(), x_pos, 20);
   }
 
@@ -82,8 +85,6 @@ export class ScaleGroup {
         );
       }
     }
-
-    console.log(this.dataOffset);
 
     //TODO: this is bad
     this.render(this.ctx!);
@@ -160,8 +161,6 @@ export class ScaleGroup {
 
     this.ctx = ctx;
 
-    console.log("DBG_B", this.scale_size);
-
     const y_scale_canvas = document.createElement("canvas");
     y_scale_canvas.width = this.scale_size;
     y_scale_canvas.height = this.height - this.scale_size;
@@ -180,8 +179,6 @@ export class ScaleGroup {
       this.dataOffset + this.visibleDataPoints,
     );
 
-    console.log("visiiii", visible_data.length);
-
     const x = xScale({
       drawingArea: {
         start: 0,
@@ -194,8 +191,6 @@ export class ScaleGroup {
         end: visible_data.length,
       },
     });
-
-    console.log("width", this.width, x(0));
 
     const lowest_data_point = Math.min(...visible_data.map((val) => val.low));
     const highest_data_point = Math.max(...visible_data.map((val) => val.high));
@@ -218,7 +213,7 @@ export class ScaleGroup {
       this.dataOffset + this.visibleDataPoints,
     );
 
-    const x_scale_canvas = renderXScale(data, this.scale_size, this.width);
+    const x_scale_canvas = renderXScale(data, this.scale_size, this.width, x);
 
     this.dom.appendChild(x_scale_canvas);
 
@@ -230,10 +225,7 @@ export class ScaleGroup {
 
       const y_pos = this.height - (this.height * i) / y_markers;
 
-      y_ctx.beginPath(); // Start a new path
-      y_ctx.moveTo(0, y_pos);
-      y_ctx.lineTo(100, y_pos);
-      y_ctx.stroke(); // Render the path
+      y_ctx.textBaseline = "middle";
 
       y_ctx.fillText(price.toFixed(2), 10, y_pos);
     }

@@ -31,7 +31,7 @@ export class CandleStick extends Series<CandleStickType> {
     const chart_width = ctx.canvas.width;
 
     const candle_width = (chart_width / visibleCandles.length) * 0.95;
-    const wick_width = 2;
+    const wick_width = Math.min(2, candle_width * 0.8);
 
     for (let i = 0; i < visibleCandles.length; i++) {
       const candle = visibleCandles[i];
