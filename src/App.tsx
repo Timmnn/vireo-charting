@@ -22,18 +22,23 @@ export const App = () => {
     });
   }, []);
 
-  const [dataset, setDataset] = useState("equities/fake_AAPL");
+  const [dataset, setDataset] = useState(
+    "futures/ES/1h_OHLCV/2018-12-21.parquet",
+  );
 
   const createChart = async () => {
+    const base_path = "../../vireo-data/data/";
+
     const candles = await trpcClientRef.current.loadDataset
-      .query(
-        `/Users/timmnicolaizik/Dev/AlgotradingPlatform/data/${dataset}/data.parquet`,
-      )
+      .query(`${base_path}${dataset}`)
       .then((data) => {
+        console.log("DATA", data);
         data = data.map((entry) => ({
           ...entry,
-          datetime: new Date(entry.datetime),
+          datetime: new Date(entry.datetime ? entry.datetime : entry.time),
         })) as any;
+
+        console.log(data);
 
         return data;
       });
@@ -72,10 +77,12 @@ export const App = () => {
   };
 
   const updateDataset = async () => {
-    const base_path = "/Users/timmnicolaizik/Dev/AlgotradingPlatform/data/";
+    const base_path = "../../vireo-data/data/";
+
+    console.log(base_path, dataset);
 
     const candles = await trpcClientRef.current.loadDataset.query(
-      `${base_path}${dataset}/data.parquet`,
+      `${base_path}${dataset}`,
     );
 
     chartRef.current?.update_data("MainSeries", candles);

@@ -1,3 +1,4 @@
+//The returned value is the center of the datapoint
 export const xScale = (options: {
   drawingArea: {
     start: number;
@@ -9,13 +10,12 @@ export const xScale = (options: {
   };
 }) => {
   return (value: number) => {
-    const percentage =
-      (value - options.valueArea.start) /
-      (options.valueArea.end - options.valueArea.start);
+    const totalWidth = options.drawingArea.end - options.drawingArea.start;
 
-    const x =
-      options.drawingArea.start +
-      percentage * (options.drawingArea.end - options.drawingArea.start);
+    const dataPointWidth =
+      totalWidth / (options.valueArea.end - options.valueArea.start);
+
+    const x = options.drawingArea.start + (value + 0.5) * dataPointWidth;
 
     return x;
   };

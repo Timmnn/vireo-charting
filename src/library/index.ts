@@ -28,6 +28,7 @@ export class Chart {
   }
   render() {
     this.rootElement.innerHTML = "";
+
     this.subplots = this.options.subplots.map((subplotOptions) => {
       const subplot_dom_element = document.createElement("div");
       this.rootElement.appendChild(subplot_dom_element);
@@ -43,9 +44,9 @@ export class Chart {
     }
   }
   update_data(id: string, data: any) {
-    for (let subplot of this.subplots) {
-      for (let scaleGroup of subplot.scaleGroups) {
-        for (let series of scaleGroup.series) {
+    for (const subplot of this.subplots) {
+      for (const scaleGroup of subplot.scaleGroups) {
+        for (const series of scaleGroup.series) {
           if (series.id === id) {
             series.data = data;
           }

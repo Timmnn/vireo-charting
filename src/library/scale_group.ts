@@ -10,12 +10,15 @@ export type ScaleGroupOptions = {
   scale_size: number;
 };
 
-function renderXScale(data: any, scale_size, width) {
+function renderXScale(data: any, scale_size: number, width: number) {
   const x_scale_canvas = document.createElement("canvas");
+
   x_scale_canvas.height = scale_size;
   x_scale_canvas.width = width - scale_size;
 
   const x_markers = 10;
+
+  console.log("DATA_x", data);
 
   for (let i = 0; i < x_markers; i++) {
     const data_point = data[Math.floor((data.length * i) / x_markers)];
@@ -23,18 +26,16 @@ function renderXScale(data: any, scale_size, width) {
     const x_pos = (i / x_markers) * width;
 
     const ctx = x_scale_canvas.getContext("2d")!;
+    ctx.font = `500 10px Roboto, sans-serif`;
+
     x_scale_canvas.classList.add("x-scale");
 
     ctx.beginPath(); // Start a new path
     ctx.moveTo(x_pos, 0);
     ctx.lineTo(x_pos, 100);
     ctx.stroke(); // Render the path
-
-    ctx.fillText(
-      new Date(data_point.datetime * 1000).toLocaleString(),
-      x_pos,
-      20,
-    );
+    ctx.font = `500 10px Roboto, sans-serif`;
+    ctx.fillText(new Date(data_point.datetime).toLocaleString(), x_pos, 20);
   }
 
   return x_scale_canvas;
@@ -54,7 +55,7 @@ export class ScaleGroup {
   };
 
   dom: HTMLElement;
-  visibleDataPoints = 500;
+  visibleDataPoints = 5;
   dataOffset = 0;
 
   destroy() {
@@ -64,10 +65,12 @@ export class ScaleGroup {
 
   zoomHandler = (e: WheelEvent) => {
     if (e.ctrlKey) {
+      const offset = Math.ceil(this.visibleDataPoints / 20);
+
       if (e.deltaY > 0) {
-        this.dataOffset += 5;
+        this.dataOffset += offset;
       } else {
-        this.dataOffset -= 5;
+        this.dataOffset = this.dataOffset - offset;
       }
     } else {
       if (e.deltaY > 0) {
@@ -79,6 +82,8 @@ export class ScaleGroup {
         );
       }
     }
+
+    console.log(this.dataOffset);
 
     //TODO: this is bad
     this.render(this.ctx!);
@@ -175,18 +180,27 @@ export class ScaleGroup {
       this.dataOffset + this.visibleDataPoints,
     );
 
+    console.log("visiiii", visible_data.length);
+
     const x = xScale({
       drawingArea: {
         start: 0,
-        end: this.width,
+        end: this.width - this.scale_size,
       },
       valueArea: {
         //start: visible_data[0].timestamp,
         //end: visible_data.at(-1)!.timestamp,
         start: 0,
-        end: visible_data.length - 1,
+        end: visible_data.length,
       },
     });
+
+    console.log("width", this.width, x(0));
+
+    const lowest_data_point = Math.min(...visible_data.map((val) => val.low));
+    const highest_data_point = Math.max(...visible_data.map((val) => val.high));
+
+    const range = highest_data_point - lowest_data_point;
 
     const y = yScale({
       drawingArea: {
@@ -194,10 +208,11 @@ export class ScaleGroup {
         end: this.height,
       },
       valueArea: {
-        start: Math.min(...visible_data.map((val) => val.low)),
-        end: Math.max(...visible_data.map((val) => val.high)),
+        start: lowest_data_point - range / 10,
+        end: highest_data_point + range / 10,
       },
     });
+
     const data = this.series[0].data.slice(
       this.dataOffset,
       this.dataOffset + this.visibleDataPoints,

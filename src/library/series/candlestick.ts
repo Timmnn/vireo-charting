@@ -30,8 +30,7 @@ export class CandleStick extends Series<CandleStickType> {
 
     const chart_width = ctx.canvas.width;
 
-    const candle_width = chart_width / visibleCandles.length;
-    console.log("DBG_D", candle_width, chart_width, visibleCandles.length);
+    const candle_width = (chart_width / visibleCandles.length) * 0.95;
     const wick_width = 2;
 
     for (let i = 0; i < visibleCandles.length; i++) {
@@ -40,7 +39,7 @@ export class CandleStick extends Series<CandleStickType> {
       ctx.fillStyle = "black";
 
       ctx.fillRect(
-        x(i) + candle_width / 2 - wick_width / 2,
+        x(i) - wick_width / 2,
         y(candle.low),
         wick_width,
         y(candle.high) - y(candle.low),
@@ -55,7 +54,7 @@ export class CandleStick extends Series<CandleStickType> {
       }
 
       ctx.fillRect(
-        x(i),
+        x(i) - candle_width / 2,
         y(Math.min(candle.close, candle.open)),
         candle_width,
         Math.max(1, Math.abs(y(candle.close) - y(candle.open))),

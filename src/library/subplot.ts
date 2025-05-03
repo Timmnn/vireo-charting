@@ -42,8 +42,6 @@ export class Subplot {
   render() {
     const main_canvas = document.createElement("canvas");
 
-    console.log("DBG_A", this.height, this.scale_size);
-
     main_canvas.height = this.height - this.scale_size;
     main_canvas.width = this.width - this.scale_size;
 

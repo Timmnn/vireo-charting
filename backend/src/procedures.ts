@@ -12,9 +12,9 @@ export const appRouter = trpc.router({
   loadDataset: trpc.procedure.input(z.string()).query(async (opts) => {
     const file_path = opts.input;
 
-    let reader = await ParquetReader.openFile(file_path);
+    const reader = await ParquetReader.openFile(file_path);
 
-    let cursor = reader.getCursor();
+    const cursor = reader.getCursor();
 
     let data = [] as any[];
     let record = null;
